@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_quiz_menu"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:background="#000"
+    tools:context="com.example.msi.languagemasterapp.QuizMenu">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/tv_quizlabel"
+        android:text="Quiz Mode Selection"
+        android:textColor="#F3FF"
+        android:textSize="30sp"
+        android:layout_centerHorizontal="true"/>
+
+    <Button
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/btn_normalquiz"
+        android:text="Normal"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="100dp"/>
+
+    <ImageButton
+        android:layout_width="30dp"
+        android:layout_height="35dp"
+        android:id="@+id/btn_infonormal"
+        android:layout_toRightOf="@id/btn_normalquiz"
+        android:layout_marginLeft="15dp"
+        android:layout_marginTop="105dp"
+        android:background="@drawable/question_icon"/>
+
+    <Button
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/btn_survivalquiz"
+        android:text="Survival"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/btn_normalquiz"
+        android:layout_marginTop="15dp"/>
+
+    <ImageButton
+        android:layout_width="30dp"
+        android:layout_height="35dp"
+        android:id="@+id/btn_infosurvival"
+        android:layout_toRightOf="@id/btn_survivalquiz"
+        android:layout_marginLeft="15dp"
+        android:layout_marginTop="30dp"
+        android:layout_below="@+id/btn_infonormal"
+        android:background="@drawable/question_icon"/>
+
+    <Button
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/btn_timedquiz"
+        android:text="Timed"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/btn_survivalquiz"
+        android:layout_marginTop="15dp"/>
+
+    <ImageButton
+        android:layout_width="30dp"
+        android:layout_height="35dp"
+        android:id="@+id/btn_infotimed"
+        android:layout_toRightOf="@id/btn_timedquiz"
+        android:layout_marginLeft="15dp"
+        android:layout_marginTop="30dp"
+        android:layout_below="@+id/btn_infosurvival"
+        android:background="@drawable/question_icon"/>
+
+    <Button
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/btn_returnmainfromquiz"
+        android:text="Back"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/btn_timedquiz"
+        android:layout_marginTop="15dp"/>
+
+    <ImageButton
+        android:layout_width="30dp"
+        android:layout_height="35dp"
+        android:id="@+id/btn_inforeturnmainfromquiz"
+        android:layout_toRightOf="@id/btn_returnmainfromquiz"
+        android:layout_marginLeft="15dp"
+        android:layout_marginTop="30dp"
+        android:layout_below="@+id/btn_infotimed"
+        android:background="@drawable/question_icon"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/tv_infoquizmodedetails"
+        android:textColor="#FF00"
+        android:textSize="20dp"
+        android:layout_alignParentBottom="true"
+        android:gravity="center"/>
+
+
+
+</RelativeLayout>

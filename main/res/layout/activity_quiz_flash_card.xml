@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_normal_quiz_flash_card"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:background="#000"
+    tools:context="com.example.msi.languagemasterapp.QuizFlashCard">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/tv_quiztitle"
+        android:text="Quiz?"
+        android:textColor="#F3FF"
+        android:textSize="30sp"
+        android:layout_centerHorizontal="true"
+        />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/tv_label"
+        android:textColor="#F3FF"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:textColor="#F3FF"
+        android:text="Score: 0"
+        android:id="@+id/tv_currentscore"/>
+
+    <TextView
+        android:layout_width="300dp"
+        android:layout_height="70dp"
+        android:id="@+id/tv_quizcharacter"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="25dp"
+        android:layout_below="@id/tv_quiztitle"
+        android:background="#FFFF"
+        android:gravity="center"
+        android:textSize="50dp" />
+
+    <TextView
+        android:layout_width="300dp"
+        android:layout_height="30dp"
+        android:id="@+id/tv_quizpronunciation"
+        android:layout_below="@id/tv_quizcharacter"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="30dp"
+        android:background="#FFF"
+        android:gravity="center"/>
+
+    <Button
+        android:layout_width="100dp"
+        android:layout_height="50dp"
+        android:layout_below="@id/tv_quizpronunciation"
+        android:layout_marginLeft="70dp"
+        android:layout_marginTop="40dp"
+        android:id="@+id/btn_quiza"/>
+
+    <Button
+        android:layout_width="100dp"
+        android:layout_height="50dp"
+        android:layout_below="@id/tv_quizpronunciation"
+        android:layout_toRightOf="@id/btn_quiza"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="40dp"
+        android:id="@+id/btn_quizb"/>
+
+    <Button
+        android:layout_width="100dp"
+        android:layout_height="50dp"
+        android:layout_below="@id/btn_quiza"
+        android:layout_marginLeft="70dp"
+        android:layout_marginTop="40dp"
+        android:id="@+id/btn_quizc"/>
+
+    <Button
+        android:layout_width="100dp"
+        android:layout_height="50dp"
+        android:layout_below="@id/btn_quizb"
+        android:layout_toRightOf="@id/btn_quizc"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="40dp"
+        android:id="@+id/btn_quizd"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/btn_exitquiz"
+        android:text="Exit"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="20dp"/>
+
+</RelativeLayout>
