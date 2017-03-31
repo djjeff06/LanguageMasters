@@ -8,22 +8,20 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".CoverPage">
+        <activity android:name=".MainNavigation"
+            android:label="@string/title_activity_main_navigation"
+            android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".MainMenu" />
-        <activity android:name=".QuizMenu" />
-        <activity android:name=".QuizFlashCard" />
-        <activity android:name=".QuizResult" />
-        <activity android:name=".WordPhraseSelection" />
-        <activity android:name=".LevelCategorySelection" />
-        <activity android:name=".LevelSelection" />
-        <activity android:name=".CategorySelection" />
-        <activity android:name=".NameHighScore"></activity>
+        <fragment android:name=".QuizFlashCard" />
+        <fragment android:name=".QuizResult" />
+        <fragment android:name=".NameHighScore" />
+        <fragment android:name=".LearnActivity" />
+
     </application>
 
 </manifest>

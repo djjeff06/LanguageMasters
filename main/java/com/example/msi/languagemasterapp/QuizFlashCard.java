@@ -1,45 +1,49 @@
 package com.example.msi.languagemasterapp;
 
-import android.content.Intent;
+import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.os.CountDownTimer;
-import android.support.v7.app.AppCompatActivity;
+import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.support.v4.app.FragmentTransaction;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.Random;
-import java.util.Timer;
 
-public class QuizFlashCard extends AppCompatActivity {
+import static com.example.msi.languagemasterapp.MainNavigation.sp;
 
-    public static final String EXTRA_SCORE = "score";
+public class QuizFlashCard extends Fragment {
 
     TextView tvQuizTitle, tvQuizCharacter, tvQuizPronunciation, tvLabel, tvScore;
-    Button btnQuizA, btnQuizB, btnQuizC, btnQuizD, btnExit;
+    Button btnQuizA, btnQuizB, btnQuizC, btnQuizD;
 
-    private boolean life;
-    private int normalCount, ranNum, score, turn;
-    private Word currentWord;
-    private ArrayList<Word> wordList;
+    private boolean life, checker;
+    private int normalCount, ranNum, score, turn, id1,id2,id3, spWordPhrase, spLanguage, spDifficulty, spCategory;
+    private Word currentWord, tempWord, word;
+    private ArrayList<Word> wordList, wordBackup;
     private Random random;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_quiz_flash_card);
+        View view =  inflater.inflate(R.layout.activity_quiz_flash_card,container,false);
 
-        tvQuizTitle = (TextView) findViewById(R.id.tv_quiztitle);
-        tvQuizCharacter = (TextView) findViewById(R.id.tv_quizcharacter);
-        tvQuizPronunciation = (TextView) findViewById(R.id.tv_quizpronunciation);
-        tvLabel = (TextView) findViewById(R.id.tv_label);
-        tvScore = (TextView)findViewById(R.id.tv_currentscore);
-        btnQuizA = (Button) findViewById(R.id.btn_quiza);
-        btnQuizB = (Button) findViewById(R.id.btn_quizb);
-        btnQuizC = (Button) findViewById(R.id.btn_quizc);
-        btnQuizD = (Button) findViewById(R.id.btn_quizd);
-        btnExit = (Button) findViewById(R.id.btn_exitquiz);
+        tvQuizTitle = (TextView) view.findViewById(R.id.tv_quiztitle);
+        tvQuizCharacter = (TextView) view.findViewById(R.id.tv_quizcharacter);
+        tvQuizPronunciation = (TextView) view.findViewById(R.id.tv_quizpronunciation);
+        tvLabel = (TextView) view.findViewById(R.id.tv_label);
+        tvScore = (TextView) view.findViewById(R.id.tv_currentscore);
+        btnQuizA = (Button) view.findViewById(R.id.btn_quiza);
+        btnQuizB = (Button) view.findViewById(R.id.btn_quizb);
+        btnQuizC = (Button) view.findViewById(R.id.btn_quizc);
+        btnQuizD = (Button) view.findViewById(R.id.btn_quizd);
+
+        random = new Random();
 
         btnQuizA.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -101,30 +105,36 @@ public class QuizFlashCard extends AppCompatActivity {
             }
         });
 
-        btnExit.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent i = new Intent(getBaseContext(), QuizMenu.class);
-                startActivity(i);
-            }
-        });
-
         if(tvQuizTitle.getText().toString().contains("?")) {
-            String mode = getIntent().getStringExtra(QuizMenu.EXTRA_MODE);
-            tvQuizTitle.setText(mode + " Quiz");
+
+            int quizmode = sp.getInt(HighScore.COLUMN_MODE, -1);
+            switch(quizmode){
+                case HighScore.QUIZMODE_NORMAL:
+                    tvQuizTitle.setText("Normal Quiz");
+                    break;
+                case HighScore.QUIZMODE_TIMED:
+                    tvQuizTitle.setText("Timed Quiz");
+                    break;
+                case HighScore.QUIZMODE_SURVIVAL:
+                    tvQuizTitle.setText("Survival Quiz");
+                    break;
+            }
+
         }
 
-        switch(getIntent().getStringExtra(QuizMenu.EXTRA_MODE)) {
+        //use shared preference to search for game mode
+        int quizmode = sp.getInt(HighScore.COLUMN_MODE, -1);
+        switch(quizmode) {
 
-            case "Normal":
-                normalCount = 20;
+            case HighScore.QUIZMODE_NORMAL:
+                normalCount = 10;
                 break;
 
-            case "Survival":
+            case HighScore.QUIZMODE_SURVIVAL:
                 life = true;
                 break;
 
-            case "Timed":
+            case HighScore.QUIZMODE_TIMED:
                 new CountDownTimer(30 * 1000, 1000) {
                     @Override
                     public void onTick(long millisUntilFinished) {
@@ -133,89 +143,253 @@ public class QuizFlashCard extends AppCompatActivity {
 
                     @Override
                     public void onFinish() {
-                        Intent i = new Intent(getBaseContext(), QuizResult.class);
-                        i.putExtra(CoverPage.EXTRA_LANGUAGE,getIntent().getStringExtra(CoverPage.EXTRA_LANGUAGE));
-                        i.putExtra(MainMenu.EXTRA_MAIN,getIntent().getStringExtra(MainMenu.EXTRA_MAIN));
-                        i.putExtra(WordPhraseSelection.EXTRA_WORDPHRASE, getIntent().getStringExtra(WordPhraseSelection.EXTRA_WORDPHRASE));
-                        i.putExtra(LevelCategorySelection.EXTRA_LEVELCATEGORY,getIntent().getStringExtra(LevelCategorySelection.EXTRA_LEVELCATEGORY));
-                        if(getIntent().getStringExtra(LevelCategorySelection.EXTRA_LEVELCATEGORY).equals("level"))
-                            i.putExtra(LevelSelection.EXTRA_LEVEL,getIntent().getStringExtra(LevelSelection.EXTRA_LEVEL));
-                        else
-                            i.putExtra(CategorySelection.EXTRA_CATEGORY,getIntent().getStringExtra(CategorySelection.EXTRA_CATEGORY));
-                        i.putExtra(QuizMenu.EXTRA_MODE, getIntent().getStringExtra(QuizMenu.EXTRA_MODE));
-                        i.putExtra(QuizFlashCard.EXTRA_SCORE, Integer.toString(score));
-                        startActivity(i);
+
+                        SharedPreferences.Editor editor = sp.edit();
+                        editor.putInt(HighScore.COLUMN_SCORE, score);
+                        editor.commit();
+                        FragmentTransaction ft = getFragmentManager().beginTransaction();
+                        ft.replace(R.id.fl_fragment, new QuizResult());
+                        ft.commit();
+
                     }
                 }.start();
                 break;
 
         }
 
-        //for beta only
-        wordList = new ArrayList<>();
-        initList();
-        currentWord = wordList.get(0);
+        if(wordList == null )
+            wordList = new ArrayList<>();
+        else if(!wordList.isEmpty())
+            wordList.clear();
+        if(wordBackup == null)
+            wordBackup = new ArrayList<>();
+        else if(!wordBackup.isEmpty())
+            wordBackup.clear();
 
-        tvQuizCharacter.setText(currentWord.getCharacter());
-        tvQuizPronunciation.setText(currentWord.getPronunciation());
-        btnQuizA.setText(currentWord.getEnglish());
-        btnQuizB.setText("Integrity");
-        btnQuizC.setText("Bravery");
-        btnQuizD.setText("Ambition");
-        if(getIntent().getStringExtra(QuizMenu.EXTRA_MODE).equals("Normal")) {
-            turn = 1;
-            tvLabel.setText("Turn " + turn);
+        Cursor cursor = MainNavigation.dbHelper.getAllWords();
+        cursor.moveToFirst();
+        while (cursor.isAfterLast() == false)
+        {
+            word = new Word();
+            String character = cursor.getString(cursor.getColumnIndex(Word.COLUMN_CHARACTER));
+            word.setCharacter(character);
+            String pronunciation = cursor.getString(cursor.getColumnIndex(Word.COLUMN_PRONUNCIATION));
+            word.setPronunciation(pronunciation);
+            String english = cursor.getString(cursor.getColumnIndex(Word.COLUMN_ENGLISH));
+            word.setEnglish(english);
+            int language = cursor.getInt(cursor.getColumnIndex(Word.COLUMN_LANGUAGE));
+            word.setLanguage(language);
+            int category = cursor.getInt(cursor.getColumnIndex(Word.COLUMN_CATEGORY));
+            word.setCategory(category);
+            int difficulty = cursor.getInt(cursor.getColumnIndex(Word.COLUMN_DIFFICULTY));
+            word.setDifficulty(difficulty);
+            int wordPhrase = cursor.getInt(cursor.getColumnIndex(Word.COLUMN_WORDPHRASE));
+            word.setWordPhrase(wordPhrase);
+            int id = cursor.getInt(cursor.getColumnIndex(Word.COLUMN_ID));
+            word.setId(id);
+            wordList.add(word);
+            wordBackup.add(word);
+            cursor.moveToNext();
         }
+
+        spDifficulty = sp.getInt(Word.COLUMN_DIFFICULTY,-1);
+        spCategory = sp.getInt(Word.COLUMN_CATEGORY,-1);
+        spLanguage = sp.getInt(Word.COLUMN_LANGUAGE,-1);
+        spWordPhrase = sp.getInt(Word.COLUMN_WORDPHRASE,-1);
+
+        checker = false;
+        while(!checker){
+            ranNum = random.nextInt(wordList.size());
+            currentWord = wordList.get(ranNum);
+            if(currentWord.getWordPhrase() == spWordPhrase && currentWord.getDifficulty() == spDifficulty &&
+                (currentWord.getCategory() == spCategory || spCategory == Word.CATEGORY_ALL) &&
+                currentWord.getLanguage() == spLanguage) {
+                checker = true;
+                wordList.remove(ranNum);
+                tvQuizCharacter.setText(currentWord.getCharacter());
+                tvQuizPronunciation.setText(currentWord.getPronunciation());
+                ranNum = random.nextInt(4);
+                switch (ranNum) {
+                    case 0:
+                        btnQuizA.setText(currentWord.getEnglish());
+                        do {
+                            ranNum = random.nextInt(wordBackup.size());
+                            id1 = wordBackup.get(ranNum).getId();
+                        } while (id1 == currentWord.getId());
+                        btnQuizB.setText(wordBackup.get(ranNum).getEnglish());
+                        do {
+                            ranNum = random.nextInt(wordBackup.size());
+                            id2 = wordBackup.get(ranNum).getId();
+                        } while (id2 == currentWord.getId() || id2 == id1);
+                        btnQuizC.setText(wordBackup.get(ranNum).getEnglish());
+                        do {
+                            ranNum = random.nextInt(wordBackup.size());
+                            id3 = wordBackup.get(ranNum).getId();
+                        } while (id3 == currentWord.getId() || id3 == id1 || id3 == id2);
+                        btnQuizD.setText(wordBackup.get(ranNum).getEnglish());
+                        break;
+                    case 1:
+                        do {
+                            ranNum = random.nextInt(wordBackup.size());
+                            id1 = wordBackup.get(ranNum).getId();
+                        } while (id1 == currentWord.getId());
+                        btnQuizA.setText(wordBackup.get(ranNum).getEnglish());
+                        btnQuizB.setText(currentWord.getEnglish());
+                        do {
+                            ranNum = random.nextInt(wordBackup.size());
+                            id2 = wordBackup.get(ranNum).getId();
+                        } while (id2 == currentWord.getId() || id2 == id1);
+                        btnQuizC.setText(wordBackup.get(ranNum).getEnglish());
+                        do {
+                            ranNum = random.nextInt(wordBackup.size());
+                            id3 = wordBackup.get(ranNum).getId();
+                        } while (id3 == currentWord.getId() || id3 == id1 || id3 == id2);
+                        btnQuizD.setText(wordBackup.get(ranNum).getEnglish());
+                        break;
+                    case 2:
+                        do {
+                            ranNum = random.nextInt(wordBackup.size());
+                            id1 = wordBackup.get(ranNum).getId();
+                        } while (id1 == currentWord.getId());
+                        btnQuizA.setText(wordBackup.get(ranNum).getEnglish());
+                        do {
+                            ranNum = random.nextInt(wordBackup.size());
+                            id2 = wordBackup.get(ranNum).getId();
+                        } while (id2 == currentWord.getId() || id2 == id1);
+                        btnQuizB.setText(wordBackup.get(ranNum).getEnglish());
+                        btnQuizC.setText(currentWord.getEnglish());
+                        do {
+                            ranNum = random.nextInt(wordBackup.size());
+                            id3 = wordBackup.get(ranNum).getId();
+                        } while (id3 == currentWord.getId() || id3 == id1 || id3 == id2);
+                        btnQuizD.setText(wordBackup.get(ranNum).getEnglish());
+                        break;
+                    case 3:
+                        do {
+                            ranNum = random.nextInt(wordBackup.size());
+                            id1 = wordBackup.get(ranNum).getId();
+                        } while (id1 == currentWord.getId());
+                        btnQuizA.setText(wordBackup.get(ranNum).getEnglish());
+                        do {
+                            ranNum = random.nextInt(wordBackup.size());
+                            id2 = wordBackup.get(ranNum).getId();
+                        } while (id2 == currentWord.getId() || id2 == id1);
+                        btnQuizB.setText(wordBackup.get(ranNum).getEnglish());
+                        do {
+                            ranNum = random.nextInt(wordBackup.size());
+                            id3 = wordBackup.get(ranNum).getId();
+                        } while (id3 == currentWord.getId() || id3 == id1 || id3 == id2);
+                        btnQuizC.setText(wordBackup.get(ranNum).getEnglish());
+                        btnQuizD.setText(currentWord.getEnglish());
+                        break;
+                }
+            }
+        }
+
+        turn = 1;
+        tvLabel.setText("Turn " + turn);
+
         random = new Random();
         score = 0;
 
-    }
-
-    //for beta only
-    public void initList(){
-
-        wordList.add(new Word("忠","zhong","Loyalty",null,0));
-        wordList.add(new Word("贪","tan","Greed",null,0));
+        return view;
 
     }
 
     public void executeButton(){
 
-        switch(getIntent().getStringExtra(QuizMenu.EXTRA_MODE)){
+        int quizmode = sp.getInt(HighScore.COLUMN_MODE, -1);
+        switch(quizmode){
 
-            case "Normal":
+            case HighScore.QUIZMODE_NORMAL:
                 if(normalCount>1) {
-                    ranNum = random.nextInt(2);
-                    currentWord = wordList.get(ranNum);
-                    tvQuizCharacter.setText(currentWord.getCharacter());
-                    tvQuizPronunciation.setText(currentWord.getPronunciation());
-
-                    ranNum = random.nextInt(4);
-                    switch (ranNum) {
-                        case 0:
-                            btnQuizA.setText(currentWord.getEnglish());
-                            btnQuizB.setText("Integrity");
-                            btnQuizC.setText("Bravery");
-                            btnQuizD.setText("Ambition");
-                            break;
-                        case 1:
-                            btnQuizA.setText("Integrity");
-                            btnQuizB.setText(currentWord.getEnglish());
-                            btnQuizC.setText("Ambition");
-                            btnQuizD.setText("Bravery");
-                            break;
-                        case 2:
-                            btnQuizA.setText("Ambition");
-                            btnQuizB.setText("Bravery");
-                            btnQuizC.setText(currentWord.getEnglish());
-                            btnQuizD.setText("Integrity");
-                            break;
-                        case 3:
-                            btnQuizA.setText("Bravery");
-                            btnQuizB.setText("Ambition");
-                            btnQuizC.setText("Integrity");
-                            btnQuizD.setText(currentWord.getEnglish());
-                            break;
+                    checker = false;
+                    while(!checker){
+                        ranNum = random.nextInt(wordList.size());
+                        currentWord = wordList.get(ranNum);
+                        if(currentWord.getWordPhrase() == spWordPhrase && currentWord.getDifficulty() == spDifficulty &&
+                                (currentWord.getCategory() == spCategory || spCategory == Word.CATEGORY_ALL) &&
+                                currentWord.getLanguage() == spLanguage) {
+                            checker = true;
+                            wordList.remove(ranNum);
+                            tvQuizCharacter.setText(currentWord.getCharacter());
+                            tvQuizPronunciation.setText(currentWord.getPronunciation());
+                            ranNum = random.nextInt(4);
+                            switch (ranNum) {
+                                case 0:
+                                    btnQuizA.setText(currentWord.getEnglish());
+                                    do {
+                                        ranNum = random.nextInt(wordBackup.size());
+                                        id1 = wordBackup.get(ranNum).getId();
+                                    } while (id1 == currentWord.getId());
+                                    btnQuizB.setText(wordBackup.get(ranNum).getEnglish());
+                                    do {
+                                        ranNum = random.nextInt(wordBackup.size());
+                                        id2 = wordBackup.get(ranNum).getId();
+                                    } while (id2 == currentWord.getId() || id2 == id1);
+                                    btnQuizC.setText(wordBackup.get(ranNum).getEnglish());
+                                    do {
+                                        ranNum = random.nextInt(wordBackup.size());
+                                        id3 = wordBackup.get(ranNum).getId();
+                                    } while (id3 == currentWord.getId() || id3 == id1 || id3 == id2);
+                                    btnQuizD.setText(wordBackup.get(ranNum).getEnglish());
+                                    break;
+                                case 1:
+                                    do {
+                                        ranNum = random.nextInt(wordBackup.size());
+                                        id1 = wordBackup.get(ranNum).getId();
+                                    } while (id1 == currentWord.getId());
+                                    btnQuizA.setText(wordBackup.get(ranNum).getEnglish());
+                                    btnQuizB.setText(currentWord.getEnglish());
+                                    do {
+                                        ranNum = random.nextInt(wordBackup.size());
+                                        id2 = wordBackup.get(ranNum).getId();
+                                    } while (id2 == currentWord.getId() || id2 == id1);
+                                    btnQuizC.setText(wordBackup.get(ranNum).getEnglish());
+                                    do {
+                                        ranNum = random.nextInt(wordBackup.size());
+                                        id3 = wordBackup.get(ranNum).getId();
+                                    } while (id3 == currentWord.getId() || id3 == id1 || id3 == id2);
+                                    btnQuizD.setText(wordBackup.get(ranNum).getEnglish());
+                                    break;
+                                case 2:
+                                    do {
+                                        ranNum = random.nextInt(wordBackup.size());
+                                        id1 = wordBackup.get(ranNum).getId();
+                                    } while (id1 == currentWord.getId());
+                                    btnQuizA.setText(wordBackup.get(ranNum).getEnglish());
+                                    do {
+                                        ranNum = random.nextInt(wordBackup.size());
+                                        id2 = wordBackup.get(ranNum).getId();
+                                    } while (id2 == currentWord.getId() || id2 == id1);
+                                    btnQuizB.setText(wordBackup.get(ranNum).getEnglish());
+                                    btnQuizC.setText(currentWord.getEnglish());
+                                    do {
+                                        ranNum = random.nextInt(wordBackup.size());
+                                        id3 = wordBackup.get(ranNum).getId();
+                                    } while (id3 == currentWord.getId() || id3 == id1 || id3 == id2);
+                                    btnQuizD.setText(wordBackup.get(ranNum).getEnglish());
+                                    break;
+                                case 3:
+                                    do {
+                                        ranNum = random.nextInt(wordBackup.size());
+                                        id1 = wordBackup.get(ranNum).getId();
+                                    } while (id1 == currentWord.getId());
+                                    btnQuizA.setText(wordBackup.get(ranNum).getEnglish());
+                                    do {
+                                        ranNum = random.nextInt(wordBackup.size());
+                                        id2 = wordBackup.get(ranNum).getId();
+                                    } while (id2 == currentWord.getId() || id2 == id1);
+                                    btnQuizB.setText(wordBackup.get(ranNum).getEnglish());
+                                    do {
+                                        ranNum = random.nextInt(wordBackup.size());
+                                        id3 = wordBackup.get(ranNum).getId();
+                                    } while (id3 == currentWord.getId() || id3 == id1 || id3 == id2);
+                                    btnQuizC.setText(wordBackup.get(ranNum).getEnglish());
+                                    btnQuizD.setText(currentWord.getEnglish());
+                                    break;
+                            }
+                        }
                     }
 
                     turn++;
@@ -223,105 +397,204 @@ public class QuizFlashCard extends AppCompatActivity {
                     normalCount--;
                 }
                 else{
-                    Intent i = new Intent(getBaseContext(), QuizResult.class);
-                    i.putExtra(CoverPage.EXTRA_LANGUAGE,getIntent().getStringExtra(CoverPage.EXTRA_LANGUAGE));
-                    i.putExtra(MainMenu.EXTRA_MAIN,getIntent().getStringExtra(MainMenu.EXTRA_MAIN));
-                    i.putExtra(WordPhraseSelection.EXTRA_WORDPHRASE, getIntent().getStringExtra(WordPhraseSelection.EXTRA_WORDPHRASE));
-                    i.putExtra(LevelCategorySelection.EXTRA_LEVELCATEGORY,getIntent().getStringExtra(LevelCategorySelection.EXTRA_LEVELCATEGORY));
-                    if(getIntent().getStringExtra(LevelCategorySelection.EXTRA_LEVELCATEGORY).equals("level"))
-                        i.putExtra(LevelSelection.EXTRA_LEVEL,getIntent().getStringExtra(LevelSelection.EXTRA_LEVEL));
-                    else
-                        i.putExtra(CategorySelection.EXTRA_CATEGORY,getIntent().getStringExtra(CategorySelection.EXTRA_CATEGORY));
-                    i.putExtra(QuizMenu.EXTRA_MODE, getIntent().getStringExtra(QuizMenu.EXTRA_MODE));
-                    i.putExtra(EXTRA_SCORE,Integer.toString(score));
-                    startActivity(i);
+                    SharedPreferences.Editor editor = sp.edit();
+                    editor.putInt(HighScore.COLUMN_SCORE, score);
+                    editor.commit();
+                    FragmentTransaction ft = getFragmentManager().beginTransaction();
+                    ft.replace(R.id.fl_fragment, new QuizResult());
+                    ft.commit();
                 }
                 break;
 
-            case "Survival":
+            case HighScore.QUIZMODE_SURVIVAL:
                 if(life) {
-                    ranNum = random.nextInt(2);
-                    currentWord = wordList.get(ranNum);
-                    tvQuizCharacter.setText(currentWord.getCharacter());
-                    tvQuizPronunciation.setText(currentWord.getPronunciation());
-
-                    ranNum = random.nextInt(4);
-                    switch (ranNum) {
-                        case 0:
-                            btnQuizA.setText(currentWord.getEnglish());
-                            btnQuizB.setText("Integrity");
-                            btnQuizC.setText("Bravery");
-                            btnQuizD.setText("Ambition");
-                            break;
-                        case 1:
-                            btnQuizA.setText("Integrity");
-                            btnQuizB.setText(currentWord.getEnglish());
-                            btnQuizC.setText("Ambition");
-                            btnQuizD.setText("Bravery");
-                            break;
-                        case 2:
-                            btnQuizA.setText("Ambition");
-                            btnQuizB.setText("Bravery");
-                            btnQuizC.setText(currentWord.getEnglish());
-                            btnQuizD.setText("Integrity");
-                            break;
-                        case 3:
-                            btnQuizA.setText("Bravery");
-                            btnQuizB.setText("Ambition");
-                            btnQuizC.setText("Integrity");
-                            btnQuizD.setText(currentWord.getEnglish());
-                            break;
+                    checker = false;
+                    while(!checker) {
+                        ranNum = random.nextInt(wordList.size());
+                        currentWord = wordList.get(ranNum);
+                        if(currentWord.getWordPhrase() == spWordPhrase && currentWord.getDifficulty() == spDifficulty &&
+                                (currentWord.getCategory() == spCategory || spCategory == Word.CATEGORY_ALL) &&
+                                currentWord.getLanguage() == spLanguage) {
+                            checker = true;
+                            wordList.remove(ranNum);
+                            tvQuizCharacter.setText(currentWord.getCharacter());
+                            tvQuizPronunciation.setText(currentWord.getPronunciation());
+                            ranNum = random.nextInt(4);
+                            switch (ranNum) {
+                                case 0:
+                                    btnQuizA.setText(currentWord.getEnglish());
+                                    do {
+                                        ranNum = random.nextInt(wordBackup.size());
+                                        id1 = wordBackup.get(ranNum).getId();
+                                    } while (id1 == currentWord.getId());
+                                    btnQuizB.setText(wordBackup.get(ranNum).getEnglish());
+                                    do {
+                                        ranNum = random.nextInt(wordBackup.size());
+                                        id2 = wordBackup.get(ranNum).getId();
+                                    } while (id2 == currentWord.getId() || id2 == id1);
+                                    btnQuizC.setText(wordBackup.get(ranNum).getEnglish());
+                                    do {
+                                        ranNum = random.nextInt(wordBackup.size());
+                                        id3 = wordBackup.get(ranNum).getId();
+                                    } while (id3 == currentWord.getId() || id3 == id1 || id3 == id2);
+                                    btnQuizD.setText(wordBackup.get(ranNum).getEnglish());
+                                    break;
+                                case 1:
+                                    do {
+                                        ranNum = random.nextInt(wordBackup.size());
+                                        id1 = wordBackup.get(ranNum).getId();
+                                    } while (id1 == currentWord.getId());
+                                    btnQuizA.setText(wordBackup.get(ranNum).getEnglish());
+                                    btnQuizB.setText(currentWord.getEnglish());
+                                    do {
+                                        ranNum = random.nextInt(wordBackup.size());
+                                        id2 = wordBackup.get(ranNum).getId();
+                                    } while (id2 == currentWord.getId() || id2 == id1);
+                                    btnQuizC.setText(wordBackup.get(ranNum).getEnglish());
+                                    do {
+                                        ranNum = random.nextInt(wordBackup.size());
+                                        id3 = wordBackup.get(ranNum).getId();
+                                    } while (id3 == currentWord.getId() || id3 == id1 || id3 == id2);
+                                    btnQuizD.setText(wordBackup.get(ranNum).getEnglish());
+                                    break;
+                                case 2:
+                                    do {
+                                        ranNum = random.nextInt(wordBackup.size());
+                                        id1 = wordBackup.get(ranNum).getId();
+                                    } while (id1 == currentWord.getId());
+                                    btnQuizA.setText(wordBackup.get(ranNum).getEnglish());
+                                    do {
+                                        ranNum = random.nextInt(wordBackup.size());
+                                        id2 = wordBackup.get(ranNum).getId();
+                                    } while (id2 == currentWord.getId() || id2 == id1);
+                                    btnQuizB.setText(wordBackup.get(ranNum).getEnglish());
+                                    btnQuizC.setText(currentWord.getEnglish());
+                                    do {
+                                        ranNum = random.nextInt(wordBackup.size());
+                                        id3 = wordBackup.get(ranNum).getId();
+                                    } while (id3 == currentWord.getId() || id3 == id1 || id3 == id2);
+                                    btnQuizD.setText(wordBackup.get(ranNum).getEnglish());
+                                    break;
+                                case 3:
+                                    do {
+                                        ranNum = random.nextInt(wordBackup.size());
+                                        id1 = wordBackup.get(ranNum).getId();
+                                    } while (id1 == currentWord.getId());
+                                    btnQuizA.setText(wordBackup.get(ranNum).getEnglish());
+                                    do {
+                                        ranNum = random.nextInt(wordBackup.size());
+                                        id2 = wordBackup.get(ranNum).getId();
+                                    } while (id2 == currentWord.getId() || id2 == id1);
+                                    btnQuizB.setText(wordBackup.get(ranNum).getEnglish());
+                                    do {
+                                        ranNum = random.nextInt(wordBackup.size());
+                                        id3 = wordBackup.get(ranNum).getId();
+                                    } while (id3 == currentWord.getId() || id3 == id1 || id3 == id2);
+                                    btnQuizC.setText(wordBackup.get(ranNum).getEnglish());
+                                    btnQuizD.setText(currentWord.getEnglish());
+                                    break;
+                            }
+                        }
                     }
-
                 }
                 else{
-                    Intent i = new Intent(getBaseContext(), QuizResult.class);
-                    i.putExtra(CoverPage.EXTRA_LANGUAGE,getIntent().getStringExtra(CoverPage.EXTRA_LANGUAGE));
-                    i.putExtra(MainMenu.EXTRA_MAIN,getIntent().getStringExtra(MainMenu.EXTRA_MAIN));
-                    i.putExtra(WordPhraseSelection.EXTRA_WORDPHRASE, getIntent().getStringExtra(WordPhraseSelection.EXTRA_WORDPHRASE));
-                    i.putExtra(LevelCategorySelection.EXTRA_LEVELCATEGORY,getIntent().getStringExtra(LevelCategorySelection.EXTRA_LEVELCATEGORY));
-                    if(getIntent().getStringExtra(LevelCategorySelection.EXTRA_LEVELCATEGORY).equals("level"))
-                        i.putExtra(LevelSelection.EXTRA_LEVEL,getIntent().getStringExtra(LevelSelection.EXTRA_LEVEL));
-                    else
-                        i.putExtra(CategorySelection.EXTRA_CATEGORY,getIntent().getStringExtra(CategorySelection.EXTRA_CATEGORY));
-                    i.putExtra(QuizMenu.EXTRA_MODE, getIntent().getStringExtra(QuizMenu.EXTRA_MODE));
-                    i.putExtra(EXTRA_SCORE,Integer.toString(score));
-                    startActivity(i);
+                    SharedPreferences.Editor editor = sp.edit();
+                    editor.putInt(HighScore.COLUMN_SCORE, score);
+                    editor.commit();
+                    FragmentTransaction ft = getFragmentManager().beginTransaction();
+                    ft.replace(R.id.fl_fragment, new QuizResult());
+                    ft.commit();
                 }
                 break;
 
-            case "Timed":
-                ranNum = random.nextInt(2);
-                currentWord = wordList.get(ranNum);
-                tvQuizCharacter.setText(currentWord.getCharacter());
-                tvQuizPronunciation.setText(currentWord.getPronunciation());
-
-                ranNum = random.nextInt(4);
-                switch (ranNum) {
-                    case 0:
-                        btnQuizA.setText(currentWord.getEnglish());
-                        btnQuizB.setText("Integrity");
-                        btnQuizC.setText("Bravery");
-                        btnQuizD.setText("Ambition");
-                        break;
-                    case 1:
-                        btnQuizA.setText("Integrity");
-                        btnQuizB.setText(currentWord.getEnglish());
-                        btnQuizC.setText("Ambition");
-                        btnQuizD.setText("Bravery");
-                        break;
-                    case 2:
-                        btnQuizA.setText("Ambition");
-                        btnQuizB.setText("Bravery");
-                        btnQuizC.setText(currentWord.getEnglish());
-                        btnQuizD.setText("Integrity");
-                        break;
-                    case 3:
-                        btnQuizA.setText("Bravery");
-                        btnQuizB.setText("Ambition");
-                        btnQuizC.setText("Integrity");
-                        btnQuizD.setText(currentWord.getEnglish());
-                        break;
+            case HighScore.QUIZMODE_TIMED:
+                checker = false;
+                while(!checker) {
+                    ranNum = random.nextInt(wordList.size());
+                    currentWord = wordList.get(ranNum);
+                    if(currentWord.getWordPhrase() == spWordPhrase && currentWord.getDifficulty() == spDifficulty &&
+                            (currentWord.getCategory() == spCategory || spCategory == Word.CATEGORY_ALL) &&
+                            currentWord.getLanguage() == spLanguage) {
+                        checker = true;
+                        wordList.remove(ranNum);
+                        tvQuizCharacter.setText(currentWord.getCharacter());
+                        tvQuizPronunciation.setText(currentWord.getPronunciation());
+                        ranNum = random.nextInt(4);
+                        switch (ranNum) {
+                            case 0:
+                                btnQuizA.setText(currentWord.getEnglish());
+                                do {
+                                    ranNum = random.nextInt(wordBackup.size());
+                                    id1 = wordBackup.get(ranNum).getId();
+                                } while (id1 == currentWord.getId());
+                                btnQuizB.setText(wordBackup.get(ranNum).getEnglish());
+                                do {
+                                    ranNum = random.nextInt(wordBackup.size());
+                                    id2 = wordBackup.get(ranNum).getId();
+                                } while (id2 == currentWord.getId() || id2 == id1);
+                                btnQuizC.setText(wordBackup.get(ranNum).getEnglish());
+                                do {
+                                    ranNum = random.nextInt(wordBackup.size());
+                                    id3 = wordBackup.get(ranNum).getId();
+                                } while (id3 == currentWord.getId() || id3 == id1 || id3 == id2);
+                                btnQuizD.setText(wordBackup.get(ranNum).getEnglish());
+                                break;
+                            case 1:
+                                do {
+                                    ranNum = random.nextInt(wordBackup.size());
+                                    id1 = wordBackup.get(ranNum).getId();
+                                } while (id1 == currentWord.getId());
+                                btnQuizA.setText(wordBackup.get(ranNum).getEnglish());
+                                btnQuizB.setText(currentWord.getEnglish());
+                                do {
+                                    ranNum = random.nextInt(wordBackup.size());
+                                    id2 = wordBackup.get(ranNum).getId();
+                                } while (id2 == currentWord.getId() || id2 == id1);
+                                btnQuizC.setText(wordBackup.get(ranNum).getEnglish());
+                                do {
+                                    ranNum = random.nextInt(wordBackup.size());
+                                    id3 = wordBackup.get(ranNum).getId();
+                                } while (id3 == currentWord.getId() || id3 == id1 || id3 == id2);
+                                btnQuizD.setText(wordBackup.get(ranNum).getEnglish());
+                                break;
+                            case 2:
+                                do {
+                                    ranNum = random.nextInt(wordBackup.size());
+                                    id1 = wordBackup.get(ranNum).getId();
+                                } while (id1 == currentWord.getId());
+                                btnQuizA.setText(wordBackup.get(ranNum).getEnglish());
+                                do {
+                                    ranNum = random.nextInt(wordBackup.size());
+                                    id2 = wordBackup.get(ranNum).getId();
+                                } while (id2 == currentWord.getId() || id2 == id1);
+                                btnQuizB.setText(wordBackup.get(ranNum).getEnglish());
+                                btnQuizC.setText(currentWord.getEnglish());
+                                do {
+                                    ranNum = random.nextInt(wordBackup.size());
+                                    id3 = wordBackup.get(ranNum).getId();
+                                } while (id3 == currentWord.getId() || id3 == id1 || id3 == id2);
+                                btnQuizD.setText(wordBackup.get(ranNum).getEnglish());
+                                break;
+                            case 3:
+                                do {
+                                    ranNum = random.nextInt(wordBackup.size());
+                                    id1 = wordBackup.get(ranNum).getId();
+                                } while (id1 == currentWord.getId());
+                                btnQuizA.setText(wordBackup.get(ranNum).getEnglish());
+                                do {
+                                    ranNum = random.nextInt(wordBackup.size());
+                                    id2 = wordBackup.get(ranNum).getId();
+                                } while (id2 == currentWord.getId() || id2 == id1);
+                                btnQuizB.setText(wordBackup.get(ranNum).getEnglish());
+                                do {
+                                    ranNum = random.nextInt(wordBackup.size());
+                                    id3 = wordBackup.get(ranNum).getId();
+                                } while (id3 == currentWord.getId() || id3 == id1 || id3 == id2);
+                                btnQuizC.setText(wordBackup.get(ranNum).getEnglish());
+                                btnQuizD.setText(currentWord.getEnglish());
+                                break;
+                        }
+                    }
                 }
                 break;
 

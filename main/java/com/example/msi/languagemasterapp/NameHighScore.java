@@ -1,46 +1,73 @@
 package com.example.msi.languagemasterapp;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
+import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-public class NameHighScore extends AppCompatActivity {
+import java.util.zip.Inflater;
 
-    TextView tvLabel, tvScore;
-    Button btnFinish;
-    EditText etName;
+import static com.example.msi.languagemasterapp.MainNavigation.sp;
 
+public class NameHighScore extends Fragment {
+
+    private TextView tvLabel, tvScore;
+    private Button btnFinish;
+    private EditText etName;
+    private int score, spDifficulty, spCategory, spLanguage, spWordPhrase, spMode;
+
+    @Nullable
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_name_high_score);
+        View view = inflater.inflate(R.layout.activity_name_high_score,container,false);
 
-        tvLabel = (TextView) findViewById(R.id.tv_namehighscoretitle);
-        tvScore = (TextView) findViewById(R.id.tv_newscore);
-        btnFinish = (Button) findViewById(R.id.btn_finishhighscore);
-        etName = (EditText) findViewById(R.id.et_newname);
+        tvLabel = (TextView) view.findViewById(R.id.tv_namehighscoretitle);
+        tvScore = (TextView) view.findViewById(R.id.tv_newscore);
+        btnFinish = (Button) view.findViewById(R.id.btn_finishhighscore);
+        etName = (EditText) view.findViewById(R.id.et_newname);
 
         btnFinish.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent i = new Intent(getBaseContext(),QuizMenu.class);
-                i.putExtra(CoverPage.EXTRA_LANGUAGE,getIntent().getStringExtra(CoverPage.EXTRA_LANGUAGE));
-                i.putExtra(MainMenu.EXTRA_MAIN,getIntent().getStringExtra(MainMenu.EXTRA_MAIN));
-                i.putExtra(WordPhraseSelection.EXTRA_WORDPHRASE, getIntent().getStringExtra(WordPhraseSelection.EXTRA_WORDPHRASE));
-                i.putExtra(LevelCategorySelection.EXTRA_LEVELCATEGORY,getIntent().getStringExtra(LevelCategorySelection.EXTRA_LEVELCATEGORY));
-                if(getIntent().getStringExtra(LevelCategorySelection.EXTRA_LEVELCATEGORY).equals("level"))
-                    i.putExtra(LevelSelection.EXTRA_LEVEL,getIntent().getStringExtra(LevelSelection.EXTRA_LEVEL));
-                else
-                    i.putExtra(CategorySelection.EXTRA_CATEGORY,getIntent().getStringExtra(CategorySelection.EXTRA_CATEGORY));
-                startActivity(i);
+
+                HighScore highScore = new HighScore();
+                highScore.setName(etName.getText().toString());
+                highScore.setScore(score);
+                highScore.setDifficulty(spDifficulty);
+                highScore.setCategory(spCategory);
+                highScore.setLanguage(spLanguage);
+                highScore.setWordphrase(spWordPhrase);
+                highScore.setMode(spMode);
+
+                MainNavigation.dbHelper.addHighScore(highScore);
+                FragmentTransaction ft = getFragmentManager().beginTransaction();
+                ft.replace(R.id.fl_fragment, new HighScoreActivity());
+                ft.commit();
+
             }
         });
 
-        tvScore.setText("Score: "+getIntent().getStringExtra(QuizFlashCard.EXTRA_SCORE));
+        spDifficulty = sp.getInt(Word.COLUMN_DIFFICULTY,-1);
+        spCategory = sp.getInt(Word.COLUMN_CATEGORY,-1);
+        spLanguage = sp.getInt(Word.COLUMN_LANGUAGE,-1);
+        spWordPhrase = sp.getInt(Word.COLUMN_WORDPHRASE,-1);
+        spMode = sp.getInt(HighScore.COLUMN_MODE, -1);
+        score = sp.getInt(HighScore.COLUMN_SCORE, -1);
+        tvScore.setText("Score: "+ score);
+
+        return view;
 
     }
+
 }

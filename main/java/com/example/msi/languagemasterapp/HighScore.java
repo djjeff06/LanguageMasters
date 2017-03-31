@@ -10,37 +10,46 @@ public class HighScore {
     public static final String COLUMN_ID = "id";
     public static final String COLUMN_NAME = "name";
     public static final String COLUMN_SCORE = "score";
+    public static final String COLUMN_LANGUAGE = "language";
     public static final String COLUMN_WORDPHRASE = "wordphrase";
-    public static final String COLUMN_LEVELCATEGORY = "levelCategory";
-    public static final String COLUMN_LEVELCATEGORYNUM = "levelCategoryNum";
+    public static final String COLUMN_CATEGORY = "category";
+    public static final String COLUMN_DIFFICULTY = "difficulty";
+    public static final String COLUMN_MODE = "mode";
 
-    //wordphrase = normal, survival, timed
-    //levelCategory = levels, category
-    //levelCategoryNum = level1, level2, food, greetings, level3
+    public static final int QUIZMODE_NORMAL = 0;
+    public static final int QUIZMODE_TIMED = 1;
+    public static final int QUIZMODE_SURVIVAL = 2;
+
     private int id;
     private String name;
     private int score;
-    private String wordphrase;
-    private String levelCategory;
-    private String levelCategoryNum;
+    private int language;
+    private int wordphrase;
+    private int category;
+    private int difficulty;
+    private int mode;
 
     public HighScore(){}
 
-    public HighScore(String name, int score, String wordphrase, String levelCategory, String levelCategoryNum) {
+    public HighScore(String name, int score, int language, int wordphrase, int category, int difficulty, int mode) {
         this.name = name;
         this.score = score;
+        this.language = language;
         this.wordphrase = wordphrase;
-        this.levelCategory = levelCategory;
-        this.levelCategoryNum = levelCategoryNum;
+        this.category = category;
+        this.difficulty = difficulty;
+        this.mode = mode;
     }
 
-    public HighScore(int id, String name, int score, String wordphrase, String levelCategory, String levelCategoryNum) {
+    public HighScore(int id, String name, int score, int language, int wordphrase, int category, int difficulty, int mode) {
         this.id = id;
         this.name = name;
         this.score = score;
+        this.language = language;
         this.wordphrase = wordphrase;
-        this.levelCategory = levelCategory;
-        this.levelCategoryNum = levelCategoryNum;
+        this.category = category;
+        this.difficulty = difficulty;
+        this.mode = mode;
     }
 
     public int getId() {
@@ -67,27 +76,43 @@ public class HighScore {
         this.score = score;
     }
 
-    public String getWordphrase() {
+    public int getWordphrase() {
         return wordphrase;
     }
 
-    public void setWordphrase(String wordphrase) {
+    public void setWordphrase(int wordphrase) {
         this.wordphrase = wordphrase;
     }
 
-    public String getLevelCategory() {
-        return levelCategory;
+    public int getCategory() {
+        return category;
     }
 
-    public void setLevelCategory(String levelCategory) {
-        this.levelCategory = levelCategory;
+    public void setCategory(int category) {
+        this.category = category;
     }
 
-    public String getLevelCategoryNum() {
-        return levelCategoryNum;
+    public int getLanguage() {
+        return language;
     }
 
-    public void setLevelCategoryNum(String levelCategoryNum) {
-        this.levelCategoryNum = levelCategoryNum;
+    public void setLanguage(int language) {
+        this.language = language;
+    }
+
+    public int getDifficulty() {
+        return difficulty;
+    }
+
+    public void setDifficulty(int difficulty) {
+        this.difficulty = difficulty;
+    }
+
+    public int getMode() {
+        return mode;
+    }
+
+    public void setMode(int mode) {
+        this.mode = mode;
     }
 }

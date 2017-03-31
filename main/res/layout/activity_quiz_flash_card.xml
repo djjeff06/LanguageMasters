@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_normal_quiz_flash_card"
     android:layout_width="match_parent"
@@ -8,7 +8,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    android:background="#000"
+    android:background="#C3D2CA"
     tools:context="com.example.msi.languagemasterapp.QuizFlashCard">
 
     <TextView
@@ -16,87 +16,78 @@
         android:layout_height="wrap_content"
         android:id="@+id/tv_quiztitle"
         android:text="Quiz?"
-        android:textColor="#F3FF"
+        android:textColor="#20AFF4"
         android:textSize="30sp"
-        android:layout_centerHorizontal="true"
+        android:layout_marginLeft="80dp"
         />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/tv_label"
-        android:textColor="#F3FF"/>
+        android:textColor="#20AFF4"/>
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:textColor="#F3FF"
+        android:layout_marginLeft="260dp"
+        android:textColor="#20AFF4"
         android:text="Score: 0"
         android:id="@+id/tv_currentscore"/>
 
     <TextView
-        android:layout_width="300dp"
+        android:layout_width="match_parent"
         android:layout_height="70dp"
         android:id="@+id/tv_quizcharacter"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="25dp"
-        android:layout_below="@id/tv_quiztitle"
+        android:layout_marginTop="60dp"
         android:background="#FFFF"
         android:gravity="center"
+        android:text="忠"
         android:textSize="50dp" />
 
     <TextView
-        android:layout_width="300dp"
+        android:layout_width="match_parent"
         android:layout_height="30dp"
         android:id="@+id/tv_quizpronunciation"
-        android:layout_below="@id/tv_quizcharacter"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="150dp"
+        android:text="zhong"
         android:background="#FFF"
         android:gravity="center"/>
 
     <Button
-        android:layout_width="100dp"
+        android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:layout_below="@id/tv_quizpronunciation"
-        android:layout_marginLeft="70dp"
-        android:layout_marginTop="40dp"
-        android:id="@+id/btn_quiza"/>
+        android:layout_marginTop="220dp"
+        android:id="@+id/btn_quiza"
+        android:text="Hello"
+        android:textColor="#DDD"
+        android:background="#079"/>
 
     <Button
-        android:layout_width="100dp"
+        android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:layout_below="@id/tv_quizpronunciation"
-        android:layout_toRightOf="@id/btn_quiza"
-        android:layout_marginLeft="10dp"
-        android:layout_marginTop="40dp"
-        android:id="@+id/btn_quizb"/>
+        android:layout_marginTop="280dp"
+        android:text="Ambition"
+        android:id="@+id/btn_quizb"
+        android:textColor="#DDD"
+        android:background="#079"/>
 
     <Button
-        android:layout_width="100dp"
+        android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:layout_below="@id/btn_quiza"
-        android:layout_marginLeft="70dp"
-        android:layout_marginTop="40dp"
-        android:id="@+id/btn_quizc"/>
+        android:layout_marginTop="340dp"
+        android:id="@+id/btn_quizc"
+        android:text="Hi"
+        android:textColor="#DDD"
+        android:background="#079"/>
 
     <Button
-        android:layout_width="100dp"
+        android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:layout_below="@id/btn_quizb"
-        android:layout_toRightOf="@id/btn_quizc"
-        android:layout_marginLeft="10dp"
-        android:layout_marginTop="40dp"
-        android:id="@+id/btn_quizd"/>
+        android:layout_marginTop="400dp"
+        android:id="@+id/btn_quizd"
+        android:text="Loyalty"
+        android:textColor="#DDD"
+        android:background="#079"/>
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/btn_exitquiz"
-        android:text="Exit"
-        android:layout_centerHorizontal="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginBottom="20dp"/>
-
-</RelativeLayout>
+</FrameLayout>

@@ -1,46 +1,47 @@
 package com.example.msi.languagemasterapp;
 
-import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
+import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.support.v4.app.FragmentTransaction;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
-public class QuizResult extends AppCompatActivity {
+import static com.example.msi.languagemasterapp.MainNavigation.sp;
+
+public class QuizResult extends Fragment {
 
     TextView tvScore;
     Button btnFinish;
 
+    @Nullable
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_quiz_result);
+        View view =  inflater.inflate(R.layout.activity_quiz_result,container,false);
 
-        tvScore = (TextView) findViewById(R.id.tv_finalscore);
-        btnFinish = (Button) findViewById(R.id.btn_gameoverfinish);
+        tvScore = (TextView) view.findViewById(R.id.tv_finalscore);
+        btnFinish = (Button) view.findViewById(R.id.btn_gameoverfinish);
 
-        if(!getIntent().getStringExtra(QuizFlashCard.EXTRA_SCORE).isEmpty()){
-            tvScore.setText("Your Score is "+getIntent().getStringExtra(QuizFlashCard.EXTRA_SCORE)+"!");
-        }
+        int score = sp.getInt(HighScore.COLUMN_SCORE, -1);
+        tvScore.setText("Your Score is "+score+"!");
 
         btnFinish.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent i = new Intent(getBaseContext(),NameHighScore.class);
-                i.putExtra(CoverPage.EXTRA_LANGUAGE,getIntent().getStringExtra(CoverPage.EXTRA_LANGUAGE));
-                i.putExtra(MainMenu.EXTRA_MAIN,getIntent().getStringExtra(MainMenu.EXTRA_MAIN));
-                i.putExtra(WordPhraseSelection.EXTRA_WORDPHRASE, getIntent().getStringExtra(WordPhraseSelection.EXTRA_WORDPHRASE));
-                i.putExtra(LevelCategorySelection.EXTRA_LEVELCATEGORY,getIntent().getStringExtra(LevelCategorySelection.EXTRA_LEVELCATEGORY));
-                if(getIntent().getStringExtra(LevelCategorySelection.EXTRA_LEVELCATEGORY).equals("level"))
-                    i.putExtra(LevelSelection.EXTRA_LEVEL,getIntent().getStringExtra(LevelSelection.EXTRA_LEVEL));
-                else
-                    i.putExtra(CategorySelection.EXTRA_CATEGORY,getIntent().getStringExtra(CategorySelection.EXTRA_CATEGORY));
-                i.putExtra(QuizMenu.EXTRA_MODE, getIntent().getStringExtra(QuizMenu.EXTRA_MODE));
-                i.putExtra(QuizFlashCard.EXTRA_SCORE, getIntent().getStringExtra(QuizFlashCard.EXTRA_SCORE));
-                startActivity(i);
+                FragmentTransaction ft = getFragmentManager().beginTransaction();
+                ft.replace(R.id.fl_fragment, new NameHighScore());
+                ft.commit();
             }
         });
 
+        return view;
+
     }
+
 }
