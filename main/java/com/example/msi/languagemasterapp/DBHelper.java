@@ -21,27 +21,34 @@ public class DBHelper extends SQLiteOpenHelper{
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        String sql = "DROP TABLE IF EXISTS "+ Word.TABLE+";";
-        db.execSQL(sql);
-
-        sql = "DROP TABLE IF EXISTS "+HighScore.TABLE+";";
-        db.execSQL(sql);
+        String sql;
 
         sql = "CREATE TABLE "+ Word.TABLE + " ( "+ Word.COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "+
                 Word.COLUMN_CHARACTER + " TEXT NOT NULL, "+ Word.COLUMN_PRONUNCIATION + " TEXT NOT NULL, "+ Word.COLUMN_ENGLISH + " TEXT NOT NULL, "
-                + Word.COLUMN_CATEGORY + " TEXT NOT NULL, "+ Word.COLUMN_LEVEL + " INTEGER NOT NULL)";
+                + Word.COLUMN_LANGUAGE + " INTEGER NOT NULL, "+ Word.COLUMN_CATEGORY + " INTEGER NOT NULL, " + Word.COLUMN_DIFFICULTY + " INTEGER NOT NULL, "
+                + Word.COLUMN_WORDPHRASE + " INTEGER NOT NULL)";
         db.execSQL(sql);
 
         sql = "CREATE TABLE "+ HighScore.TABLE + " ( "+ HighScore.COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "+
                 HighScore.COLUMN_NAME + " TEXT NOT NULL, "+ HighScore.COLUMN_SCORE + " INTEGER NOT NULL, "+
-                HighScore.COLUMN_WORDPHRASE + " TEXT NOT NULL, "+ HighScore.COLUMN_LEVELCATEGORY + " TEXT NOT NULL, "+
-                HighScore.COLUMN_LEVELCATEGORYNUM + " TEXT NOT NULL)";
+                HighScore.COLUMN_LANGUAGE + " INTEGER NOT NULL, "+HighScore.COLUMN_WORDPHRASE + " INTEGER NOT NULL, "+
+                HighScore.COLUMN_CATEGORY + " INTEGER NOT NULL, "+ HighScore.COLUMN_DIFFICULTY + " INTEGER NOT NULL, "+
+                HighScore.COLUMN_MODE + " INTEGER NOT NULL)";
         db.execSQL(sql);
 
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int i, int i1) {
+
+        String sql;
+
+        sql = "DROP TABLE IF EXISTS "+ Word.TABLE+";";
+        db.execSQL(sql);
+
+        sql = "DROP TABLE IF EXISTS "+HighScore.TABLE+";";
+        db.execSQL(sql);
+
         onCreate(db);
     }
 
@@ -56,8 +63,10 @@ public class DBHelper extends SQLiteOpenHelper{
         cv.put(Word.COLUMN_CHARACTER, word.getCharacter());
         cv.put(Word.COLUMN_PRONUNCIATION, word.getPronunciation());
         cv.put(Word.COLUMN_ENGLISH, word.getEnglish());
-        cv.put(Word.COLUMN_LEVEL, word.getLevel());
+        cv.put(Word.COLUMN_LANGUAGE, word.getLanguage());
+        cv.put(Word.COLUMN_DIFFICULTY, word.getDifficulty());
         cv.put(Word.COLUMN_CATEGORY, word.getCategory());
+        cv.put(Word.COLUMN_WORDPHRASE, word.getWordPhrase());
         long id = db.insert(Word.TABLE, null, cv);
         db.close();
         return id;
@@ -68,25 +77,14 @@ public class DBHelper extends SQLiteOpenHelper{
         ContentValues cv = new ContentValues();
         cv.put(HighScore.COLUMN_NAME, highScore.getName());
         cv.put(HighScore.COLUMN_SCORE, highScore.getScore());
+        cv.put(HighScore.COLUMN_LANGUAGE, highScore.getLanguage());
         cv.put(HighScore.COLUMN_WORDPHRASE, highScore.getWordphrase());
-        cv.put(HighScore.COLUMN_LEVELCATEGORY, highScore.getLevelCategory());
-        cv.put(HighScore.COLUMN_LEVELCATEGORYNUM, highScore.getLevelCategoryNum());
-        long id = db.insert(Word.TABLE, null, cv);
+        cv.put(HighScore.COLUMN_CATEGORY, highScore.getCategory());
+        cv.put(HighScore.COLUMN_DIFFICULTY, highScore.getDifficulty());
+        cv.put(HighScore.COLUMN_MODE, highScore.getMode());
+        long id = db.insert(HighScore.TABLE, null, cv);
         db.close();
         return id;
-    }
-
-    public int updateWord(Word word){
-        SQLiteDatabase db = getWritableDatabase();
-        ContentValues cv = new ContentValues();
-        cv.put(Word.COLUMN_CHARACTER, word.getCharacter());
-        cv.put(Word.COLUMN_PRONUNCIATION, word.getPronunciation());
-        cv.put(Word.COLUMN_ENGLISH, word.getEnglish());
-        cv.put(Word.COLUMN_LEVEL, word.getLevel());
-        cv.put(Word.COLUMN_CATEGORY, word.getCategory());
-        int rows = db.update(Word.TABLE, cv, Word.COLUMN_ID + "=? ", new String[]{word.getId()+""});
-        db.close();
-        return rows;
     }
 
     public int updateHighScore(HighScore highScore){
@@ -94,17 +92,12 @@ public class DBHelper extends SQLiteOpenHelper{
         ContentValues cv = new ContentValues();
         cv.put(HighScore.COLUMN_NAME, highScore.getName());
         cv.put(HighScore.COLUMN_SCORE, highScore.getScore());
+        cv.put(HighScore.COLUMN_LANGUAGE, highScore.getLanguage());
         cv.put(HighScore.COLUMN_WORDPHRASE, highScore.getWordphrase());
-        cv.put(HighScore.COLUMN_LEVELCATEGORY, highScore.getLevelCategory());
-        cv.put(HighScore.COLUMN_LEVELCATEGORYNUM, highScore.getLevelCategoryNum());
+        cv.put(HighScore.COLUMN_CATEGORY, highScore.getCategory());
+        cv.put(HighScore.COLUMN_DIFFICULTY, highScore.getDifficulty());
+        cv.put(HighScore.COLUMN_MODE, highScore.getMode());
         int rows = db.update(HighScore.TABLE, cv, HighScore.COLUMN_ID + "=? ", new String[]{highScore.getId()+""});
-        db.close();
-        return rows;
-    }
-
-    public int deleteWord(int id){
-        SQLiteDatabase db = getWritableDatabase();
-        int rows = db.delete(Word.TABLE, Word.COLUMN_ID + " =? ", new String[]{id+""});
         db.close();
         return rows;
     }
@@ -128,10 +121,14 @@ public class DBHelper extends SQLiteOpenHelper{
             word.setPronunciation(pronunciation);
             String english = cursor.getString(cursor.getColumnIndex(Word.COLUMN_ENGLISH));
             word.setEnglish(english);
-            String category = cursor.getString(cursor.getColumnIndex(Word.COLUMN_CATEGORY));
+            int language = cursor.getInt(cursor.getColumnIndex(Word.COLUMN_LANGUAGE));
+            word.setLanguage(language);
+            int category = cursor.getInt(cursor.getColumnIndex(Word.COLUMN_CATEGORY));
             word.setCategory(category);
-            int level = cursor.getInt(cursor.getColumnIndex(Word.COLUMN_LEVEL));
-            word.setLevel(level);
+            int difficulty = cursor.getInt(cursor.getColumnIndex(Word.COLUMN_DIFFICULTY));
+            word.setDifficulty(difficulty);
+            int wordPhrase = cursor.getInt(cursor.getColumnIndex(Word.COLUMN_WORDPHRASE));
+            word.setWordPhrase(wordPhrase);
             word.setId(id);
         }
         db.close();
@@ -141,7 +138,7 @@ public class DBHelper extends SQLiteOpenHelper{
 
     public Cursor getAllHighScore(){
         SQLiteDatabase db = getReadableDatabase();
-        return db.query(HighScore.TABLE, null, null, null, null, null, null);
+        return db.query(HighScore.TABLE, null, null, null, null, null, HighScore.COLUMN_SCORE+" DESC");
     }
 
     public HighScore getHighScore(int id){
@@ -154,17 +151,30 @@ public class DBHelper extends SQLiteOpenHelper{
             highScore.setName(name);
             int score = cursor.getInt(cursor.getColumnIndex(HighScore.COLUMN_SCORE));
             highScore.setScore(score);
-            String wordPhrase = cursor.getString(cursor.getColumnIndex(HighScore.COLUMN_WORDPHRASE));
+            int language = cursor.getInt(cursor.getColumnIndex(HighScore.COLUMN_LANGUAGE));
+            highScore.setLanguage(language);
+            int wordPhrase = cursor.getInt(cursor.getColumnIndex(HighScore.COLUMN_WORDPHRASE));
             highScore.setWordphrase(wordPhrase);
-            String levelCategory = cursor.getString(cursor.getColumnIndex(HighScore.COLUMN_LEVELCATEGORY));
-            highScore.setLevelCategory(levelCategory);
-            String levelCategoryNum = cursor.getString(cursor.getColumnIndex(HighScore.COLUMN_LEVELCATEGORYNUM));
-            highScore.setLevelCategory(levelCategoryNum);
+            int category = cursor.getInt(cursor.getColumnIndex(HighScore.COLUMN_CATEGORY));
+            highScore.setCategory(category);
+            int difficulty = cursor.getInt(cursor.getColumnIndex(HighScore.COLUMN_DIFFICULTY));
+            highScore.setDifficulty(difficulty);
+            int mode = cursor.getInt(cursor.getColumnIndex(HighScore.COLUMN_MODE));
+            highScore.setMode(mode);
             highScore.setId(id);
         }
         db.close();
         cursor.close();
         return highScore;
+    }
+
+    public int getProfilesCount() {
+        String countQuery = "SELECT  * FROM " + HighScore.TABLE;
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(countQuery, null);
+        int cnt = cursor.getCount();
+        cursor.close();
+        return cnt;
     }
 
 }

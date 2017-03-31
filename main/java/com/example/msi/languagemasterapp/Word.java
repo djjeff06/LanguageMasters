@@ -11,35 +11,41 @@ public class Word {
     public static final String COLUMN_CHARACTER = "character";
     public static final String COLUMN_PRONUNCIATION = "pronunciation";
     public static final String COLUMN_ENGLISH = "english";
+    public static final String COLUMN_LANGUAGE = "language";
     public static final String COLUMN_CATEGORY = "category";
-    public static final String COLUMN_LEVEL = "level";
-    public static final String CATEGORY_TRAITS = "trait";
-    public static final String CATEGORY_FOOD = "food";
+    public static final String COLUMN_DIFFICULTY = "difficulty";
+    public static final String COLUMN_WORDPHRASE = "wordphrase";
+
+    public static final int CATEGORY_ALL = 0;
+    public static final int CATEGORY_FOOD = 1;
+    public static final int CATEGORY_ITEM = 2;
+    public static final int DIFFICULTY_EASY = 0;
+    public static final int DIFFICULTY_HARD = 1;
+    public static final int LANGUAGE_CHINESE = 0;
+    public static final int LANGUAGE_JAPANESE = 1;
+    public static final int WORDPHRASE_WORD = 0;
+    public static final int WORDPHRASE_PHRASE = 1;
+    public static final String LEARNCURRENTID = "learncurrentid";
 
     private int id;
     private String character;
     private String pronunciation;
     private String english;
-    private String category;
-    private int level;
+    private int language;
+    private int category;
+    private int difficulty;
+    private int wordPhrase;
 
     public Word(){};
 
-    public Word(int id, String character, String pronunciation, String english, String category, int level) {
-        this.id = id;
+    public Word(String character, String pronunciation, String english, int language, int category, int difficulty, int wordPhrase) {
         this.character = character;
         this.pronunciation = pronunciation;
         this.english = english;
+        this.language = language;
         this.category = category;
-        this.level = level;
-    }
-
-    public Word(String character, String pronunciation, String english, String category, int level) {
-        this.character = character;
-        this.pronunciation = pronunciation;
-        this.english = english;
-        this.category = category;
-        this.level = level;
+        this.difficulty = difficulty;
+        this.wordPhrase = wordPhrase;
     }
 
     public String getCharacter() {
@@ -74,19 +80,35 @@ public class Word {
         this.english = english;
     }
 
-    public String getCategory() {
+    public int getCategory() {
         return category;
     }
 
-    public void setCategory(String category) {
+    public void setCategory(int category) {
         this.category = category;
     }
 
-    public int getLevel() {
-        return level;
+    public int getDifficulty() {
+        return difficulty;
     }
 
-    public void setLevel(int level) {
-        this.level = level;
+    public void setDifficulty(int difficulty) {
+        this.difficulty = difficulty;
+    }
+
+    public int getLanguage() {
+        return language;
+    }
+
+    public void setLanguage(int language) {
+        this.language = language;
+    }
+
+    public int getWordPhrase() {
+        return wordPhrase;
+    }
+
+    public void setWordPhrase(int wordPhrase) {
+        this.wordPhrase = wordPhrase;
     }
 }
